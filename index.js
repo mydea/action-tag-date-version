@@ -10,7 +10,8 @@ async function run() {
         let options = {
             listeners: {
                 stdout: (data) => {
-                    allTags.push(data.toString());
+                    let tag = data.toString().replace(/\s/g, '');
+                    allTags.push(tag);
                 }
             }
         };
