@@ -1,6 +1,6 @@
-name: ember-cli-code-coverage-action
+name: action-tag-date-version
 
-on: [pull_request]
+on: [push]
 
 jobs:
   test:
