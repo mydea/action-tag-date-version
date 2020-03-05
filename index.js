@@ -25,7 +25,7 @@ async function run() {
         console.log(`Next version: ${nextVersion}`);
 
         await exec(`git tag ${nextVersion}`);
-        await exec(`git push ${nextVersion}`);
+        await exec(`git push origin ${nextVersion}`);
     } catch (error) {
         setFailed(error.message);
     }
