@@ -6,6 +6,7 @@ async function run() {
         await exec('git fetch --tags');
 
         let allTags = [];
+
         let options = {
             listeners: {
                 stdout: (data) => {
@@ -14,7 +15,7 @@ async function run() {
                 }
             }
         };
-        
+
         await exec('git tag', [], options);
         let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
