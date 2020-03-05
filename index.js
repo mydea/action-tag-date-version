@@ -18,9 +18,9 @@ async function run() {
 
         await exec('git tag', [], options);
 
-        let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
+        let previousVersionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
-        let nextVersion = getCurrentDateVersion(versionTags);
+        let nextVersion = getCurrentDateVersion(previousVersionTags);
 
         console.log(`Next version: ${nextVersion}`);
 
@@ -72,6 +72,7 @@ function processVersion(version) {
     }
 
     let {year: currentYear, month: currentMonth} = getDateParts();
+    console.log({year, month, currentYear, currentMonth});
 
     if (year !== currentYear || month !== currentMonth) {
         return false;
