@@ -1,81 +1,92 @@
-const { getInput, setFailed } = require('@actions/core');
-const { exec } =  require('@actions/exec');
+const {getInput, setFailed} = require('@actions/core');
+const {exec} = require('@actions/exec');
 
 async function run() {
-  try {
-    await exec('git fetch --tags');
-    let allTags = await exec('git tag');
-    let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
+    try {
+        await exec('git fetch --tags');
 
-    let nextVersion = getCurrentDateVersion(versionTags[0]);
+        let allTags = [];
+        let options = {
+            listeners: {
+                stdout: (data) => {
+                    console.log(data.toString());
+                    allTags.push(data.toString());
+                }
+            }
+        };
+        
+        await exec('git tag', [], options);
+        let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
-    console.log(`Next version: ${nextVersion}`);
+        let nextVersion = getCurrentDateVersion(versionTags[0]);
 
-    // await exec(`git tag ${nextVersion}`);
-    // await exec(`git push ${nextVersion}`);
+        console.log(`Next version: ${nextVersion}`);
 
-  } catch (error) {
-    setFailed(error.message);
-  }
+        // await exec(`git tag ${nextVersion}`);
+        // await exec(`git push ${nextVersion}`);
+
+    } catch (error) {
+        setFailed(error.message);
+    }
 }
 
 run();
 
 function getCurrentDateVersion(latestVersion) {
-  let latestVersionParts = latestVersion.split('.');
+    let latestVersionParts = latestVersion.split('.');
 
-  let date = new Date();
+    let date = new Date();
 
-  let year = date
-      .getUTCFullYear()
-      .toString()
-      .substr(-2);
-  let month = date.getUTCMonth() + 1;
+    let year = date
+        .getUTCFullYear()
+        .toString()
+        .substr(-2);
+    let month = date.getUTCMonth() + 1;
 
-  let newVersionParts = [`${year}`, `${month}`, '0'];
+    let newVersionParts = [`${year}`, `${month}`, '0'];
 
-  if (
-      latestVersionParts[0] === newVersionParts[0] &&
-      latestVersionParts[1] === newVersionParts[1]
-  ) {
-    newVersionParts[2] = latestVersionParts[2] * 1 + 1;
-  }
+    if (
+        latestVersionParts[0] === newVersionParts[0] &&
+        latestVersionParts[1] === newVersionParts[1]
+    ) {
+        newVersionParts[2] = latestVersionParts[2] * 1 + 1;
+    }
 
-  return newVersionParts.join('.');
+    return newVersionParts.join('.');
 }
 
 function processVersion(version) {
-  let parts = version.split('.');
+    let parts = version.split('.');
 
-  if (parts.length !== 3) {
-    return false;
-  }
+    if (parts.length !== 3) {
+        return false;
+    }
 
-  let year = parts[0];
-  let month = parts[1] * 1;
-  let patch = parts[2] * 1;
+    let year = parts[0];
+    let month = parts[1] * 1;
+    let patch = parts[2] * 1;
 
-  if(year.match(/^v\d*/)) {
-    year = year.substr(1);
-  }
+    if (year.match(/^v\d*/)) {
+        year = year.substr(1);
+    }
 
-  year = year * 1;
+    year = year * 1;
 
-  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(patch)) {
-    return false;
-  }
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(patch)) {
+        return false;
+    }
 
-  if (year < 19 || year > 99) {
-    return false;
-  }
+    if (year < 19 || year > 99) {
+        return false;
+    }
 
-  if (month < 1 || month > 12) {
-    return false;
-  }
+    if (month < 1 || month > 12) {
+        return false;
+    }
 
-  if (patch < 0) {
-    return false;
-  }
+    if (patch < 0) {
+        return false;
+    }
 
-  return `${year}.${month}.${patch}`
+    return `${year}.${month}.${patch}`
 }
