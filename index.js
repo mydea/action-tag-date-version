@@ -18,20 +18,14 @@ async function run() {
 
         await exec('git tag', [], options);
 
-        console.log('Found tags:');
-        console.log(JSON.stringify(allTags));
-
         let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
-
-        console.log(JSON.stringify(versionTags));
 
         let nextVersion = getCurrentDateVersion(versionTags);
 
         console.log(`Next version: ${nextVersion}`);
 
-        // await exec(`git tag ${nextVersion}`);
-        // await exec(`git push ${nextVersion}`);
-
+        await exec(`git tag ${nextVersion}`);
+        await exec(`git push ${nextVersion}`);
     } catch (error) {
         setFailed(error.message);
     }
@@ -40,17 +34,10 @@ async function run() {
 run();
 
 function getCurrentDateVersion(previousVersionTags) {
-    let date = new Date();
-
-    let year = date
-        .getUTCFullYear()
-        .toString()
-        .substr(-2);
-    let month = date.getUTCMonth() + 1;
-
+    let {year, month} = getDateParts();
     let newVersionParts = [`${year}`, `${month}`, '0'];
 
-    while(_tagExists(newVersionParts, previousVersionTags)) {
+    while (_tagExists(newVersionParts, previousVersionTags)) {
         newVersionParts[2]++;
     }
 
@@ -63,7 +50,6 @@ function _tagExists(tagParts, previousVersionTags) {
 }
 
 function processVersion(version) {
-    console.log('process version', version);
     let parts = version.split('.');
 
     if (parts.length !== 3) {
@@ -84,17 +70,22 @@ function processVersion(version) {
         return false;
     }
 
-    if (year < 19 || year > 99) {
-        return false;
-    }
+    let {year: currentYear, month: currentMonth} = getDateParts();
 
-    if (month < 1 || month > 12) {
-        return false;
-    }
-
-    if (patch < 0) {
+    if (year !== currentYear || month !== currentMonth) {
         return false;
     }
 
     return `${year}.${month}.${patch}`
+}
+
+function getDateParts() {
+    let date = new Date();
+    let year = date
+        .getUTCFullYear()
+        .toString()
+        .substr(-2);
+    let month = date.getUTCMonth() + 1;
+
+    return {year, month};
 }
