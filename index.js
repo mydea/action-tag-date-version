@@ -23,6 +23,8 @@ async function run() {
 
         let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
+        console.log(JSON.stringify(versionTags));
+
         let nextVersion = getCurrentDateVersion(versionTags[0]);
 
         console.log(`Next version: ${nextVersion}`);
