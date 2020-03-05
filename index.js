@@ -10,13 +10,16 @@ async function run() {
         let options = {
             listeners: {
                 stdout: (data) => {
-                    console.log(data.toString());
                     allTags.push(data.toString());
                 }
             }
         };
 
         await exec('git tag', [], options);
+
+        console.log('Found tags:');
+        console.log(allTags.join(', '));
+
         let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
         let nextVersion = getCurrentDateVersion(versionTags[0]);
