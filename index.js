@@ -46,6 +46,7 @@ function getCurrentDateVersion(previousVersionTags) {
 
 function _tagExists(tagParts, previousVersionTags) {
     let newTag = tagParts.join('.');
+    console.log(newTag, JSON.stringify(previousVersionTags));
     return previousVersionTags.find((tag) => tag === newTag);
 }
 
