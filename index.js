@@ -18,7 +18,7 @@ async function run() {
         await exec('git tag', [], options);
 
         console.log('Found tags:');
-        console.log(allTags.join(', '));
+        console.log(JSON.stringify(allTags));
 
         let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
@@ -60,6 +60,7 @@ function getCurrentDateVersion(latestVersion) {
 }
 
 function processVersion(version) {
+    console.log('process version', version);
     let parts = version.split('.');
 
     if (parts.length !== 3) {
