@@ -18,9 +18,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - uses: mydea/actions-tag-date-version@v1
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+    - uses: mydea/actions-tag-date-version@v20
     - run: deploy-app
 ```
 
