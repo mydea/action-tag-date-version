@@ -1,0 +1,12 @@
+name: 'action-tag-date-version'
+description: 'Automatically add a tag with a date version'
+author: 'Francesco Novy'
+branding:
+  icon: 'bar-chart-2'
+  color: 'orange'
+inputs:
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
+runs:
+  using: 'node12'
+  main: 'index.js'

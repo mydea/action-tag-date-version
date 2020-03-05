@@ -1,0 +1,26 @@
+{
+  "name": "action-tag-date-version",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Create a Git tag for date versioning.",
+  "main": "index.js",
+  "scripts": {
+    "mock-test": "yarn -v"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mydea/action-tag-date-version.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "setup"
+  ],
+  "author": "Francesco Novy",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.0.0",
+    "@actions/exec": "^1.0.0",
+    "@actions/github": "^1.0.0"
+  }
+}
