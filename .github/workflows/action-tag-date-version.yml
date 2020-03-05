@@ -3,7 +3,7 @@ name: action-tag-date-version
 on: [push]
 
 jobs:
-  test:
+  tag-version:
 
     runs-on: ubuntu-latest
 
@@ -12,5 +12,3 @@ jobs:
       - name: action-tag-date-version
         uses: ./ # Uses an action in the root directory
         id: action-tag-date-version
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"

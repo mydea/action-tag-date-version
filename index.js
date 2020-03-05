@@ -1,15 +1,8 @@
 const { getInput, setFailed } = require('@actions/core');
 const { exec } =  require('@actions/exec');
-const { GitHub } = require('@actions/github');
-const fs = require('fs');
 
 async function run() {
   try {
-    let myToken = getInput('repo-token', { required: true });
-
-   let octokit = new GitHub(myToken);
-    let pullRequest = await getPullRequest();
-
     await exec('git fetch --tags');
     let allTags = await exec('git tag');
     let versionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
