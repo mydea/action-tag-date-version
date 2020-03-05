@@ -46,7 +46,6 @@ function getCurrentDateVersion(previousVersionTags) {
 
 function _tagExists(tagParts, previousVersionTags) {
     let newTag = tagParts.join('.');
-    console.log(newTag, JSON.stringify(previousVersionTags));
     return previousVersionTags.find((tag) => tag === newTag);
 }
 
@@ -72,7 +71,6 @@ function processVersion(version) {
     }
 
     let {year: currentYear, month: currentMonth} = getDateParts();
-    console.log({year, month, currentYear, currentMonth});
 
     if (year !== currentYear || month !== currentMonth) {
         return false;
