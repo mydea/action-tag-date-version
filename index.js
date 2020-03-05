@@ -10,8 +10,8 @@ async function run() {
         let options = {
             listeners: {
                 stdout: (data) => {
-                    let tag = data.toString().replace(/\s/g, '');
-                    allTags.push(tag);
+                    let tags = data.toString().split('\n');
+                    allTags = allTags.concat(tags);
                 }
             }
         };
@@ -25,7 +25,7 @@ async function run() {
 
         console.log(JSON.stringify(versionTags));
 
-        let nextVersion = getCurrentDateVersion(versionTags[0]);
+        let nextVersion = getCurrentDateVersion(versionTags);
 
         console.log(`Next version: ${nextVersion}`);
 
@@ -39,9 +39,7 @@ async function run() {
 
 run();
 
-function getCurrentDateVersion(latestVersion) {
-    let latestVersionParts = latestVersion.split('.');
-
+function getCurrentDateVersion(previousVersionTags) {
     let date = new Date();
 
     let year = date
@@ -52,14 +50,16 @@ function getCurrentDateVersion(latestVersion) {
 
     let newVersionParts = [`${year}`, `${month}`, '0'];
 
-    if (
-        latestVersionParts[0] === newVersionParts[0] &&
-        latestVersionParts[1] === newVersionParts[1]
-    ) {
-        newVersionParts[2] = latestVersionParts[2] * 1 + 1;
+    while(_tagExists(newVersionParts, previousVersionTags)) {
+        newVersionParts[2]++;
     }
 
     return newVersionParts.join('.');
+}
+
+function _tagExists(tagParts, previousVersionTags) {
+    let newTag = tagParts.join('.');
+    return previousVersionTags.find((tag) => tag === newTag);
 }
 
 function processVersion(version) {
