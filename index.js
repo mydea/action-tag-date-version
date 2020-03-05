@@ -86,7 +86,7 @@ function getDateParts() {
     let year = date
         .getUTCFullYear()
         .toString()
-        .substr(-2);
+        .substr(-2) * 1;
     let month = date.getUTCMonth() + 1;
 
     return {year, month};
