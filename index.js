@@ -1,5 +1,6 @@
 const {setFailed, getInput} = require('@actions/core');
 const {exec} = require('@actions/exec');
+const semver = require('semver');
 
 async function run() {
     try {
@@ -28,6 +29,8 @@ async function run() {
 
         await exec(`git tag ${nextVersion}`);
         await exec(`git push origin ${nextVersion}`);
+
+        // try this...
     } catch (error) {
         setFailed(error.message);
     }
@@ -70,33 +73,19 @@ function _tagExists(tagParts, previousVersionTags, prereleaseParts) {
 }
 
 function processVersion(version) {
-    let parts = version.split('.');
-
-    if (parts.length !== 3) {
+    if (!semver.valid(version)) {
         return false;
     }
 
-    let year = parts[0];
-    let month = parts[1] * 1;
-    let patch = parts[2] * 1;
-
-    if (year.match(/^v\d*/)) {
-        year = year.substr(1);
-    }
-
-    year = year * 1;
-
-    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(patch)) {
-        return false;
-    }
+    let {major, minor, patch, prerelease, version: parsedVersion} = semver.parse(version);
 
     let {year: currentYear, month: currentMonth} = getDateParts();
 
-    if (year !== currentYear || month !== currentMonth) {
+    if (major !== currentYear || minor !== currentMonth) {
         return false;
     }
 
-    return `${year}.${month}.${patch}`
+    return parsedVersion;
 }
 
 function getDateParts() {
