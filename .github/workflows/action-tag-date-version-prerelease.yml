@@ -1,9 +1,9 @@
-name: action-tag-date-version
+name: action-tag-date-version-prerelease
 
 on:
   push:
     branches:
-      - master
+      - prerelease
 
 jobs:
   tag-version:
@@ -15,3 +15,5 @@ jobs:
       - name: action-tag-date-version
         uses: ./ # Uses an action in the root directory
         id: action-tag-date-version
+        with:
+          prerelease: beta

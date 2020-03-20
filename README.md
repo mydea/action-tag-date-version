@@ -22,4 +22,23 @@ jobs:
     - run: deploy-app
 ```
 
-Note that the `GITHUB_TOKEN` secret is automatically available, so you don't need to do anything else about that.
+You can also specify an option `prerelease` to create versions like `20.3.5-beta.0`:
+
+
+```yaml
+name: ember-cli-code-coverage
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - uses: mydea/action-tag-date-version@v20
+      with:
+        prerelease: beta
+    - run: deploy-app
+```

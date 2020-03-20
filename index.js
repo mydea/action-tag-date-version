@@ -1,8 +1,10 @@
-const {setFailed} = require('@actions/core');
+const {setFailed, getInput} = require('@actions/core');
 const {exec} = require('@actions/exec');
 
 async function run() {
     try {
+        let prerelease = getInput('prerelease', {required: false});
+
         await exec('git fetch --tags');
 
         let allTags = [];
@@ -20,7 +22,7 @@ async function run() {
 
         let previousVersionTags = allTags.map(processVersion).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
-        let nextVersion = getCurrentDateVersion(previousVersionTags);
+        let nextVersion = prerelease ? getPrereleaseVersion(previousVersionTags, prerelease) : getNextDateVersion(previousVersionTags);
 
         console.log(`Next version: ${nextVersion}`);
 
@@ -33,9 +35,9 @@ async function run() {
 
 run();
 
-function getCurrentDateVersion(previousVersionTags) {
+function getNextDateVersion(previousVersionTags) {
     let {year, month} = getDateParts();
-    let newVersionParts = [`${year}`, `${month}`, '0'];
+    let newVersionParts = [`${year}`, `${month}`, 0];
 
     while (_tagExists(newVersionParts, previousVersionTags)) {
         newVersionParts[2]++;
@@ -44,8 +46,26 @@ function getCurrentDateVersion(previousVersionTags) {
     return newVersionParts.join('.');
 }
 
-function _tagExists(tagParts, previousVersionTags) {
+function getPrereleaseVersion(previousVersionTags, prerelease) {
+    let nextVersion = getNextDateVersion(previousVersionTags);
+    let nextVersionParts = nextVersion.split('.');
+
+    let prereleaseVersion = 0;
+    while (_tagExists(nextVersionParts, previousVersionTags, [prerelease, prereleaseVersion])) {
+        prereleaseVersion++;
+    }
+
+    return `${nextVersion}-${prerelease}.${prereleaseVersion}`;
+}
+
+function _tagExists(tagParts, previousVersionTags, prereleaseParts) {
     let newTag = tagParts.join('.');
+
+    if (prereleaseParts) {
+        let [prerelease, prereleaseVersion] = prereleaseParts;
+        newTag = `${newTag}-${prerelease}.${prereleaseVersion}`;
+    }
+
     return previousVersionTags.find((tag) => tag === newTag);
 }
 
