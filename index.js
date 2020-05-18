@@ -33,7 +33,24 @@ async function run() {
     console.log(`Next version: ${nextVersion}`);
 
     await exec(`git tag ${nextVersion}`);
-    await exec(`git push origin ${nextVersion}`);
+
+    try {
+      await exec(`git push origin ${nextVersion}`);
+    } catch (error) {
+      let errorMessage = `${error}`;
+
+      if (
+        errorMessage.includes("reference already exists") ||
+        errorMessage.includes(
+          "Updates were rejected because the tag already exists in the remote."
+        )
+      ) {
+        console.log(
+          `It seems the version ${nextVersion} was already created on origin in the meanwhile, skipping...`
+        );
+        return;
+      }
+    }
 
     // try this...
   } catch (error) {
@@ -114,6 +131,7 @@ function getDateParts() {
 
 async function execGetOutput(command) {
   let collectedOutput = [];
+  let collectedErrorOutput = [];
 
   let options = {
     listeners: {
@@ -121,10 +139,18 @@ async function execGetOutput(command) {
         let output = data.toString().split("\n");
         collectedOutput = collectedOutput.concat(output);
       },
+      stderr: (data) => {
+        let output = data.toString().split("\n");
+        collectedErrorOutput = collectedErrorOutput.concat(output);
+      },
     },
   };
 
-  await exec(command, [], options);
+  try {
+    await exec(command, [], options);
+  } catch (error) {
+    throw new Error(collectedErrorOutput);
+  }
 
   return collectedOutput;
 }
