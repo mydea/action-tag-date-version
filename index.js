@@ -8,18 +8,31 @@ async function run() {
 
     await exec("git fetch --tags");
 
-    let allTags = [];
+    let collectedOutput = [];
 
     let options = {
       listeners: {
         stdout: (data) => {
-          let tags = data.toString().split("\n");
-          allTags = allTags.concat(tags);
+          let output = data.toString().split("\n");
+          collectedOutput = collectedOutput.concat(output);
         },
       },
     };
 
+    // First Check if there is already a release tag at the head...
+    await exec("git tag --points-at HEAD", options);
+    let currentTags = collectedOutput;
+    collectedOutput = [];
+
+    let currentVersionTags = currentTags.map(processVersion).filter(Boolean);
+
+    if (currentVersionTags.length > 0) {
+      console.log(`Already at version ${currentVersionTags[0]}, skipping...`);
+      return;
+    }
+
     await exec("git tag", [], options);
+    let allTags = collectedOutput;
 
     let previousVersionTags = allTags
       .map(processVersion)
