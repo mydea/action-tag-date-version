@@ -38,6 +38,8 @@ async function run() {
     await exec("git tag", [], options);
     let allTags = collectedOutput;
 
+    console.log(allTags);
+
     let previousVersionTags = allTags
       .map(processVersion)
       .filter(Boolean)
