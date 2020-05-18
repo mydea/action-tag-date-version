@@ -1,4 +1,5 @@
 const { setFailed, getInput } = require("@actions/core");
+const { context } = require("@actions/github");
 const { exec } = require("@actions/exec");
 const semver = require("semver");
 
@@ -8,18 +9,17 @@ async function run() {
 
     await exec("git fetch --tags");
 
-    let allTags = [];
+    // First Check if there is already a release tag at the head...
+    let currentTags = await execGetOutput(`git tag --points-at ${context.sha}`);
 
-    let options = {
-      listeners: {
-        stdout: (data) => {
-          let tags = data.toString().split("\n");
-          allTags = allTags.concat(tags);
-        },
-      },
-    };
+    let currentVersionTags = currentTags.map(processVersion).filter(Boolean);
 
-    await exec("git tag", [], options);
+    if (currentVersionTags.length > 0) {
+      console.log(`Already at version ${currentVersionTags[0]}, skipping...`);
+      return;
+    }
+
+    let allTags = await execGetOutput("git tag");
 
     let previousVersionTags = allTags
       .map(processVersion)
@@ -110,4 +110,21 @@ function getDateParts() {
   let month = date.getUTCMonth() + 1;
 
   return { year, month };
+}
+
+async function execGetOutput(command) {
+  let collectedOutput = [];
+
+  let options = {
+    listeners: {
+      stdout: (data) => {
+        let output = data.toString().split("\n");
+        collectedOutput = collectedOutput.concat(output);
+      },
+    },
+  };
+
+  await exec(command, [], options);
+
+  return collectedOutput;
 }
