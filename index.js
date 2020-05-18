@@ -1,4 +1,5 @@
 const { setFailed, getInput } = require("@actions/core");
+const { context } = require("@actions/github");
 const { exec } = require("@actions/exec");
 const semver = require("semver");
 
@@ -20,7 +21,7 @@ async function run() {
     };
 
     // First Check if there is already a release tag at the head...
-    await exec("git tag --points-at HEAD", options);
+    await exec(`git tag --points-at ${context.sha}`, options);
     let currentTags = collectedOutput;
     collectedOutput = [];
 
