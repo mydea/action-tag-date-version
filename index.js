@@ -26,6 +26,9 @@ async function run() {
 
     let currentVersionTags = currentTags.map(processVersion).filter(Boolean);
 
+    console.log(currentTags);
+    console.log(currentVersionTags);
+
     if (currentVersionTags.length > 0) {
       console.log(`Already at version ${currentVersionTags[0]}, skipping...`);
       return;
