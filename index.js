@@ -40,19 +40,20 @@ async function run() {
       let errorMessage = `${error}`;
 
       if (
-        errorMessage.includes("reference already exists") ||
-        errorMessage.includes(
+        !errorMessage.includes("reference already exists") &&
+        !errorMessage.includes(
           "Updates were rejected because the tag already exists in the remote."
         )
       ) {
-        console.log(
-          `It seems the version ${nextVersion} was already created on origin in the meanwhile, skipping...`
-        );
-        return;
+        throw error;
       }
+
+      console.log(
+        `It seems the version ${nextVersion} was already created on origin in the meanwhile, skipping...`
+      );
     }
 
-    // try this...
+    core.setOutput("version", nextVersion);
   } catch (error) {
     setFailed(error.message);
   }
