@@ -1,4 +1,4 @@
-const { setFailed, getInput } = require("@actions/core");
+const { setFailed, getInput, setOutput } = require("@actions/core");
 const { context } = require("@actions/github");
 const { exec } = require("@actions/exec");
 const semver = require("semver");
@@ -53,7 +53,7 @@ async function run() {
       );
     }
 
-    core.setOutput("version", nextVersion);
+    setOutput("version", nextVersion);
   } catch (error) {
     setFailed(error.message);
   }
