@@ -7,35 +7,21 @@ async function run() {
   try {
     let prerelease = getInput("prerelease", { required: false });
 
-    await exec("git fetch --tags");
+    let currentVersionTag = await getCurrentTag();
 
-    // First Check if there is already a release tag at the head...
-    let currentTags = await execGetOutput(`git tag --points-at ${context.sha}`);
-
-    let currentVersionTags = currentTags.map(processVersion).filter(Boolean);
-
-    if (currentVersionTags.length > 0) {
-      console.log(`Already at version ${currentVersionTags[0]}, skipping...`);
+    if (currentVersionTag) {
+      console.log(`Already at version ${currentVersionTag}, skipping...`);
+      setOutput("version", currentVersionTag);
       return;
     }
 
-    let allTags = await execGetOutput("git tag");
-
-    let previousVersionTags = allTags
-      .map(processVersion)
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b));
-
-    let nextVersion = prerelease
-      ? getPrereleaseVersion(previousVersionTags, prerelease)
-      : getNextDateVersion(previousVersionTags);
-
+    let nextVersion = await getNextVersionTag({ prerelease });
     console.log(`Next version: ${nextVersion}`);
 
     await exec(`git tag ${nextVersion}`);
 
     try {
-      await exec(`git push origin ${nextVersion}`);
+      await execGetOutput(`git push origin ${nextVersion}`);
     } catch (error) {
       let errorMessage = `${error}`;
 
@@ -60,6 +46,28 @@ async function run() {
 }
 
 run();
+
+async function getCurrentTag() {
+  await exec("git fetch --tags");
+
+  // First Check if there is already a release tag at the head...
+  let currentTags = await execGetOutput(`git tag --points-at ${context.sha}`);
+
+  return currentTags.map(processVersion).filter(Boolean)[0];
+}
+
+async function getNextVersionTag({ prerelease }) {
+  let allTags = await execGetOutput("git tag");
+
+  let previousVersionTags = allTags
+    .map(processVersion)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+
+  return prerelease
+    ? getPrereleaseVersion(previousVersionTags, prerelease)
+    : getNextDateVersion(previousVersionTags);
+}
 
 function getNextDateVersion(previousVersionTags) {
   let { year, month } = getDateParts();
