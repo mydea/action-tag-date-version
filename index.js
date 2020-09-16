@@ -29,7 +29,8 @@ async function run() {
         !errorMessage.includes("reference already exists") &&
         !errorMessage.includes(
           "Updates were rejected because the tag already exists in the remote."
-        )
+        ) &&
+        !errorMessage.includes("shallow update not allowed")
       ) {
         throw error;
       }
